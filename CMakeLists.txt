@@ -42,6 +42,7 @@ if (PKG_CONFIG_FOUND)
 	pkg_check_modules(OGRE OGRE)
 	pkg_check_modules(OGRE-Terrain OGRE-Terrain)
 endif()
+find_package(YARP REQUIRED)
 
 include(FindProtobuf)
 find_package(Protobuf REQUIRED)
@@ -59,6 +60,7 @@ include_directories(${GAZEBO_INCLUDE_DIRS}
 		                ${OGRE-Terrain_INCLUDE_DIRS}
                     ${PROTOBUF_INCLUDE_DIR}
 		                ${Boost_INCLUDE_DIRS}
+		    ${YARP_INCLUDE_DIRS}
                     ${INCLUDE_DIR})
 link_directories   (${GAZEBO_LIBRARY_DIRS}
 		                ${OGRE_LIBRARY_DIRS}
@@ -84,6 +86,12 @@ if(BUILD_VECTORVIEW OR BUILD_VECTORGUI)
 	add_library(${FILTERNAME}   SHARED ${filter_source} ${filter_header})
 	target_link_libraries(      ${FILTERNAME}
 	                            ${GAZEBO_LIBRARIES})
+	message("-- CODYCO_SUPERBUILD_ROOT = " $ENV{CODYCO_SUPERBUILD_ROOT})
+	IF(DEFINED ENV{CODYCO_SUPERBUILD_ROOT})
+		install (TARGETS ${FILTERNAME} DESTINATION $ENV{CODYCO_SUPERBUILD_ROOT}/build/install/lib)
+	ELSE()
+		message("-- CODYCO_SUPERBUILD_ROOT not found")
+	ENDIF()
 else()
 	execute_process(COMMAND echo "-- Neither VectorView nor VectorGUI will be built")
 endif()
@@ -95,7 +103,14 @@ if(BUILD_VECTORVIEW)
 				                      ${OGRE_LIBRARIES}
 				                      ${FILTERNAME}
 				                      ${Boost_LIBRARIES}
-				                      ${PROTOBUF_LIBRARY})
+				                      ${PROTOBUF_LIBRARY}
+						      ${YARP_LIBRARIES})
+	message("-- CODYCO_SUPERBUILD_ROOT = " $ENV{CODYCO_SUPERBUILD_ROOT})	
+	IF(DEFINED ENV{CODYCO_SUPERBUILD_ROOT})
+		install (TARGETS ${PROJECTNAME} DESTINATION $ENV{CODYCO_SUPERBUILD_ROOT}/build/install/lib)
+	ELSE()
+		message("-- CODYCO_SUPERBUILD_ROOT not found")
+	ENDIF()
 endif()
 
 if(BUILD_VECTORGUI)
